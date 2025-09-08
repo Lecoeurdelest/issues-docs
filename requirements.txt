@@ -1,0 +1,16 @@
+langchain
+langchain-openai
+python-dotenv
+fastapi
+uvicorn[standard]
+python-multipart
+docling
+
+# Vector Store
+chromadb
+
+# Search Engine
+langchain-elasticsearch
+elasticsearch-dsl
+
+
