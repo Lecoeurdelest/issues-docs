@@ -14,3 +14,7 @@ chromadb==1.0.20
 # Search Engine / Elasticsearch
 elasticsearch-dsl==8.18.0
 langchain-elasticsearch==0.3.2
+
+# Settings Management
+pydantic==2.11.7
+pydantic-settings==2.10.1

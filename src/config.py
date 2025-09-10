@@ -1,39 +1,37 @@
-import os
-from dotenv import load_dotenv
-from elasticsearch import Elasticsearch
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
-load_dotenv(override=True)
+class Settings(BaseSettings):
 
-class Settings:
-    ELASTICSEARCH_URL = os.getenv("ELASTICSEARCH_URL", "http://localhost:9200")
-    ELASTICSEARCH_API_KEY = os.getenv("ELASTICSEARCH_API_KEY")
-    INDEX_NAME = os.getenv("INDEX_NAME", "use_cases")
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra='ignore'
+    )
 
-    LLM_API_KEY = None
-    LLM_MODEL = None
-    EMBEDDING_MODEL = None
-    EMBEDDING_DIM = None
-    DOCLING_API_KEY = None
-    DOCLING_OUTPUT_FORMAT = None
-    CHROMADB_HOST = None
-    CHROMADB_PORT = None
-    CHROMADB_COLLECTION = None
+    ELASTICSEARCH_URL: str = "http://localhost:9200"
+    ELASTICSEARCH_API_KEY: str | None = None
+    ELASTIC_PASSWORD: str | None = None
+    INDEX_NAME: str = "use_cases"
 
-    API_HOST = os.getenv("API_HOST", "0.0.0.0")
-    API_PORT = int(os.getenv("API_PORT", 8000))
-    API_DEBUG = os.getenv("API_DEBUG", "False").lower() == "true"
+    LLM_API_KEY: str | None = None
+    LLM_MODEL: str | None = None
+    EMBEDDING_MODEL: str | None = None
+    EMBEDDING_DIM: int | None = None
 
-    LANGCHAIN_TRACING = None
-    LANGCHAIN_PROJECT = None
-    LANGGRAPH_MAX_STEPS = None
+    DOCLING_API_KEY: str | None = None
+    DOCLING_OUTPUT_FORMAT: str | None = None
 
-    def validate(self):
-        pass
+    CHROMADB_HOST: str = "0.0.0.0"
+    CHROMADB_PORT: int = 8001
+    CHROMADB_COLLECTION: str = "uc_vectors"
+
+    API_HOST: str = "0.0.0.0"
+    API_PORT: int = 8008
+    API_DEBUG: bool = False
+
+    LANGCHAIN_TRACING: bool = False
+    LANGCHAIN_PROJECT: str | None = None
+    LANGGRAPH_MAX_STEPS: int = 10
+
 
 settings = Settings()
-settings.validate()
-
-es_client = Elasticsearch(
-    hosts=[settings.ELASTICSEARCH_URL],
-    api_key=settings.ELASTICSEARCH_API_KEY
-)
