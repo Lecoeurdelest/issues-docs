@@ -1,10 +1,27 @@
-# src/main.py
-import os
-from dotenv import load_dotenv
-from rag_pipeline import build_rag_pipeline, ask_question
+from fastapi import FastAPI
+from controller import routers
+import uvicorn
 
 def main():
-    pass
+
+    app = FastAPI(
+        title="Issue Documentation Service",
+        description="API for managing issue documentation",
+        version="1.0.0",
+    )
+
+    for router in routers:
+        app.include_router(router)
+
+    return app
+
+app = main()
+
 
 if __name__ == "__main__":
-    main()
+    uvicorn.run(
+        "main:app",
+        host="127.0.0.1",
+        port=8008,
+        reload=True
+    )

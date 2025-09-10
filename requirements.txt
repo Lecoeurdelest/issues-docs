@@ -1,16 +1,16 @@
-langchain
-langchain-openai
-python-dotenv
-fastapi
-uvicorn[standard]
-python-multipart
-docling
+# Core
+fastapi==0.116.1
+uvicorn[standard]==0.23.2
+python-dotenv==1.0.1
+python-multipart==0.0.20
+
+# LangChain & LLM
+langchain==0.3.27
+docling==2.51.0
 
 # Vector Store
-chromadb
+chromadb==1.0.20
 
-# Search Engine
-langchain-elasticsearch
-elasticsearch-dsl
-
-
+# Search Engine / Elasticsearch
+elasticsearch-dsl==8.18.0
+langchain-elasticsearch==0.3.2

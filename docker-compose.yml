@@ -1,0 +1,79 @@
+version: "3.9"
+
+services:
+  elasticsearch:
+    image: elasticsearch:8.18.0
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=true
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD:-elastic}
+      - ELASTICSEARCH_API_KEY=${ELASTICSEARCH_API_KEY}
+    ports:
+      - "9200:9200"
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    networks:
+      - uc_network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9200/_cluster/health | grep -q '\"status\":\"green\"'"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  fastapi:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fastapi
+    environment:
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - ELASTICSEARCH_API_KEY=${ELASTICSEARCH_API_KEY}
+      - INDEX_NAME=use_cases
+      - API_HOST=0.0.0.0
+      - API_PORT=8008
+      - API_DEBUG=${API_DEBUG:-True}
+    ports:
+      - "8008:8008"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - uc_network
+    volumes:
+      - .:/app
+    command: >
+      bash -c "source activate uc_env &&
+               if [ \"$API_DEBUG\" = \"True\" ]; then
+                 uvicorn main:create_app --host 0.0.0.0 --port 8008 --reload;
+               else
+                 uvicorn main:create_app --host 0.0.0.0 --port 8008 --workers 4;
+               fi"
+
+  chromadb:
+    image: chromadb/chroma:1.0.20
+    container_name: chromadb
+    environment:
+      - CHROMADB_HOST=0.0.0.0
+      - CHROMADB_PORT=8001
+    ports:
+      - "8001:8001"
+    networks:
+      - uc_network
+    volumes:
+      - chroma_data:/chroma/chroma
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/api/v1/heartbeat"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+volumes:
+  es_data:
+    driver: local
+  chroma_data:
+    driver: local
+
+networks:
+  uc_network:
+    driver: bridge
